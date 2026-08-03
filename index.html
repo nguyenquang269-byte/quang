@@ -30,8 +30,10 @@
         .dish-name { font-size: 17px; font-weight: 700; color: #2c3e50; }
         .dish-note { margin-top: 8px; font-size: 13px; color: #7f8c8d; }
         .cach-nau-box { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease, margin 0.35s ease; background: #fff7ea; border-radius: 12px; margin-top: 0; padding: 0 16px; line-height: 1.7; color: #443322; border-left: 4px solid #f39c12; }
-        .cach-nau-box.mo-rong { max-height: 2200px; padding: 16px; margin-top: 10px; }
+        .cach-nau-box.mo-rong { max-height: 3200px; padding: 16px; margin-top: 10px; }
         .cach-nau-box strong { color: #c06014; }
+        .cach-nau-box ul, .cach-nau-box ol { margin: 8px 0 0 18px; padding-left: 6px; }
+        .cach-nau-box li { margin-bottom: 6px; }
         .ket-qua { display: none; margin-top: 10px; }
         .ket-qua.hien-thi { display: block; }
         .hidden-screenshot { position: absolute; left: -9999px; top: -9999px; }
@@ -76,17 +78,17 @@
     <script>
         const FALLBACK_DATA = {
             canh: [
-                { ten: "Canh chua cá", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá, me, dứa, cà chua, giá, rau om.<br><br><strong>👨‍🍳 Cách nấu:</strong> Nấu nước dùng me, cho cá vào, thêm dứa và cà chua. Nêm gia vị vừa ăn, cho giá và rau om vào trước khi tắt bếp." },
-                { ten: "Canh bí nấu tôm", cachnau: "<strong>📋 Nguyên liệu:</strong> Bí xanh, tôm bóc vỏ, hành lá, gia vị.<br><br><strong>👨‍🍳 Cách nấu:</strong> Xào tôm sơ với hành. Thêm nước sôi, cho bí vào nấu mềm. Nêm muối, tiêu, rắc hành lá." }
+                { ten: "Canh chua cá", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>300g cá</li><li>1 quả cà chua</li><li>1 ít me và dứa</li><li>1 lít nước dùng</li><li>1 nắm rau thơm</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Đun sôi nước dùng rồi cho cá vào nấu chín.</li><li>Cho cà chua, me và dứa vào để tạo vị chua.</li><li>Nêm nước mắm, đường và tiêu cho vừa miệng.</li><li>Cho rau thơm vào cuối rồi tắt bếp.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Nấu lửa nhỏ để cá không bị nát." },
+                { ten: "Canh bí nấu tôm", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>200g tôm</li><li>1 quả bí xanh</li><li>1 nhánh hành lá</li><li>1 lít nước sôi</li><li>1 ít muối và tiêu</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Phi thơm hành với một chút dầu rồi cho tôm vào.</li><li>Cho nước sôi và bí xanh vào nấu cho mềm.</li><li>Nêm muối, tiêu rồi rắc hành lá lên trên.</li><li>Tắt bếp khi canh đã trong và thơm.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Cho bí vào sau để giữ được độ ngọt tự nhiên." }
             ],
             thit: [
-                { ten: "Thịt kho trứng", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt ba chỉ, nước dừa, trứng, nước mắm, đường.<br><br><strong>👨‍🍳 Cách nấu:</strong> Ướp thịt với gia vị. Kho với nước dừa đến khi thịt mềm và nước sánh." },
-                { ten: "Gà xào sả ớt", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt gà, sả, ớt, tỏi, dầu ăn.<br><br><strong>👨‍🍳 Cách nấu:</strong> Phi thơm sả tỏi, cho gà vào xào săn, thêm ớt và gia vị, đảo đều đến khi chín." },
-                { ten: "Cá kho tộ", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá, nước mắm, đường, tiêu, hành lá.<br><br><strong>👨‍🍳 Cách nấu:</strong> Ướp cá với gia vị. Kho nhỏ lửa đến khi nước sánh và cá thấm." }
+                { ten: "Thịt kho trứng", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>300g thịt ba chỉ</li><li>3 quả trứng</li><li>2 muỗng canh nước mắm</li><li>1 ít đường và tiêu</li><li>1 củ hành, 2 tép tỏi</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Ướp thịt với nước mắm, đường, hành và tỏi khoảng 15 phút.</li><li>Cho thịt vào nồi cùng một ít nước và kho nhỏ lửa.</li><li>Khi thịt mềm, cho trứng vào kho thêm vài phút.</li><li>Thêm tiêu và đường cho nước sánh lại rồi tắt bếp.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Kho lửa nhỏ để thịt thấm đều và không bị khô." },
+                { ten: "Gà xào sả ớt", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>300g thịt gà</li><li>2 nhánh sả</li><li>2 quả ớt</li><li>2 tép tỏi</li><li>2 muỗng canh dầu ăn</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Ướp gà với tỏi, sả, ớt và một chút nước mắm.</li><li>Đun nóng chảo rồi cho dầu ăn và gà vào xào cho săn.</li><li>Thêm sả và ớt khi gà gần chín để thơm hơn.</li><li>Đảo đều đến khi gà chín và thấm gia vị.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Không xào quá lâu để thịt gà vẫn mềm và không bị khô." },
+                { ten: "Cá kho tộ", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>300g cá</li><li>2 muỗng canh nước mắm</li><li>1 ít đường, tiêu</li><li>1 nhánh hành lá</li><li>2 tép tỏi</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Ướp cá với nước mắm, đường, tiêu và tỏi trong 10 phút.</li><li>Cho cá vào nồi cùng một ít nước rồi kho nhỏ lửa.</li><li>Đợi nước sánh và cá thấm đều gia vị.</li><li>Rắc hành lá lên trên rồi tắt bếp.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Dùng lửa nhỏ để cá không bị nát." }
             ],
             rau: [
-                { ten: "Rau muống xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong> Rau muống, tỏi, dầu ăn, muối.<br><br><strong>👨‍🍳 Cách nấu:</strong> Phi tỏi thơm, cho rau muống vào xào nhanh trên lửa lớn. Nêm muối vừa ăn." },
-                { ten: "Bắp cải xào chay", cachnau: "<strong>📋 Nguyên liệu:</strong> Bắp cải, cà rốt, dầu ăn, xì dầu.<br><br><strong>👨‍🍳 Cách nấu:</strong> Xào cà rốt trước, thêm bắp cải và xì dầu. Đảo nhanh đến khi chín giòn." }
+                { ten: "Rau muống xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>250g rau muống</li><li>2 tép tỏi</li><li>1 muỗng canh dầu ăn</li><li>1 ít muối và tiêu</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Phi thơm tỏi trong dầu rồi cho rau muống vào.</li><li>Xào nhanh trên lửa lớn để giữ độ giòn.</li><li>Nêm muối và tiêu vừa ăn.</li><li>Tắt bếp ngay khi rau vừa chín.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Đừng xào quá lâu để rau không bị mềm và nhạt." },
+                { ten: "Bắp cải xào chay", cachnau: "<strong>📋 Nguyên liệu:</strong><ul><li>250g bắp cải</li><li>1 củ cà rốt</li><li>2 tép tỏi</li><li>1 muỗng canh xì dầu</li><li>1 ít dầu ăn</li></ul><br><strong>👨‍🍳 Cách nấu:</strong><ol><li>Xào cà rốt trước trong dầu nóng vài phút.</li><li>Cho bắp cải vào và đảo đều.</li><li>Cho xì dầu, muối và tiêu rồi xào tới khi chín giòn.</li><li>Tắt bếp và thưởng thức nóng.</li></ol><br><strong>💡 Mẹo nhỏ:</strong> Nếu thích giòn hơn, chỉ xào trong khoảng 3–4 phút." }
             ]
         };
 
@@ -109,19 +111,42 @@
 
         function taiDuLieu() {
             hienThiThongBao('⏳ Đang tải dữ liệu món ăn...');
-            fetch('./monan.json')
-                .then(res => {
+            Promise.all([
+                fetch('./data/canh.json').then(res => {
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     return res.json();
-                })
-                .then(data => {
-                    DANH_SACH_MON = normalizeData(data);
-                    hienThiThongBao('✅ Đã tải danh sách món ăn từ monan.json.');
+                }).catch(() => []),
+                fetch('./data/thit.json').then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                }).catch(() => []),
+                fetch('./data/rau.json').then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                }).catch(() => [])
+            ])
+                .then(([canh, thit, rau]) => {
+                    DANH_SACH_MON = normalizeData({ canh, thit, rau });
+                    if (!DANH_SACH_MON.canh.length && !DANH_SACH_MON.thit.length && !DANH_SACH_MON.rau.length) {
+                        throw new Error('No data');
+                    }
+                    hienThiThongBao('✅ Đã tải danh sách món ăn từ các file JSON riêng.');
                 })
                 .catch(err => {
-                    console.warn('Không thể tải monan.json:', err);
-                    DANH_SACH_MON = FALLBACK_DATA;
-                    hienThiThongBao('⚠️ Không tải được monan.json. Đang dùng dữ liệu nội bộ.');
+                    console.warn('Không thể tải dữ liệu từ thư mục data:', err);
+                    fetch('./monan.json')
+                        .then(res => {
+                            if (!res.ok) throw new Error('HTTP ' + res.status);
+                            return res.json();
+                        })
+                        .then(data => {
+                            DANH_SACH_MON = normalizeData(data);
+                            hienThiThongBao('✅ Đã tải danh sách món ăn từ monan.json.');
+                        })
+                        .catch(() => {
+                            DANH_SACH_MON = FALLBACK_DATA;
+                            hienThiThongBao('⚠️ Không tải được dữ liệu. Đang dùng dữ liệu nội bộ.');
+                        });
                 });
         }
 
@@ -251,6 +276,17 @@
             document.getElementById('actionButtons').style.display = 'flex';
         }
 
+        function renderRecipeContent(mon) {
+            if (Array.isArray(mon?.nguyenLieu) && Array.isArray(mon?.cachNau)) {
+                const ingredients = mon.nguyenLieu.map(item => `<li>${item}</li>`).join('');
+                const steps = mon.cachNau.map((step, index) => `<li>Bước ${index + 1}: ${step}</li>`).join('');
+                const method = mon.phuongThuc ? `<strong>🍳 Phương thức:</strong> ${mon.phuongThuc}<br>` : '';
+                const tip = mon.meo ? `<br><strong>💡 Mẹo nhỏ:</strong> ${mon.meo}` : '';
+                return `${method}<strong>📋 Nguyên liệu:</strong><ul>${ingredients}</ul><br><strong>👨‍🍳 Các bước:</strong><ol>${steps}</ol>${tip}`;
+            }
+            return mon?.cachnau || '';
+        }
+
         function hienThi(dsMon) {
             const box = document.getElementById('ketQua');
             box.innerHTML = '';
@@ -260,12 +296,13 @@
                 const icon = mon.loai === 'canh' ? '🍲' : mon.loai === 'thit' ? '🥩' : '🥬';
                 const lop = mon.loai === 'canh' ? 'dish-canh' : mon.loai === 'thit' ? 'dish-thit' : 'dish-rau';
                 const tenLoai = mon.loai === 'canh' ? 'Món canh' : mon.loai === 'thit' ? 'Món thịt/hải sản' : 'Rau/món phụ';
+                const recipeContent = renderRecipeContent(mon);
 
                 html += `
                     <div class="dish-item ${lop}" id="mon-${stt}" onclick="moRongCachNau(${stt})">
                         <div class="dish-name"><span class="dish-icon">${icon}</span>${mon.ten}</div>
                         <div class="dish-note">${tenLoai} — Bấm xem cách nấu ▼</div>
-                        <div class="cach-nau-box" id="cachnau-${stt}">${mon.cachnau}</div>
+                        <div class="cach-nau-box" id="cachnau-${stt}">${recipeContent}</div>
                     </div>`;
             });
 

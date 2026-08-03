@@ -1,2 +1,2 @@
 # quang
-nothing
+Không biết ăn gì !!!

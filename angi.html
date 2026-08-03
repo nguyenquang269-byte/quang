@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hôm nay ăn gì?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            background: #fffef8;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            margin-top: 10px;
+        }
+        h1 {
+            color: #8B4513;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #5a3e2b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #e0c9a6;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            background: #fffaf0;
+            color: #443322;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #d35400, #e67e22);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(211, 84, 0, 0.3);
+            transition: transform 0.2s;
+            margin-bottom: 18px;
+        }
+        button:hover { transform: translateY(-2px); }
+        .dish-item {
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .dish-item:hover { transform: translateX(4px); }
+        .dish-thit { background: #ffe9e9; border-left: 5px solid #e74c3c; }
+        .dish-canh { background: #e9f4ff; border-left: 5px solid #3498db; }
+        .dish-rau { background: #e9ffe9; border-left: 5px solid #27ae60; }
+        .dish-icon { font-size: 20px; margin-right: 8px; }
+        .dish-name { font-size: 17px; font-weight: 600; color: #2c3e50; }
+        .dish-note { font-size: 12px; color: #7f8c8d; margin-top: 4px; }
+        /* === KHUNG HƯỚNG DẪN NẤU === */
+        .cach-nau-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease, margin 0.3s ease;
+            background: #fff9e8;
+            border-radius: 10px;
+            margin-top: 0;
+            padding: 0 15px;
+            line-height: 1.7;
+            font-size: 15px;
+            color: #443322;
+            border-left: 4px solid #f39c12;
+        }
+        .cach-nau-box.mo-rong {
+            max-height: 2000px;
+            padding: 15px;
+            margin-top: 8px;
+        }
+        .cach-nau-box strong { color: #c06014; }
+        .ket-qua { display: none; }
+        .ket-qua.hien-thi { display: block; animation: hien 0.5s ease; }
+        @keyframes hien {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🍽️ Hôm nay ăn gì?</h1>
+    <p class="subtitle">Chọn số món → Bấm gợi ý → Bấm tên món xem cách nấu!</p>
+
+    <label>Số món muốn ăn (1-5 món):</label>
+    <select id="soMon">
+        <option value="1">1 món</option>
+        <option value="2">2 món</option>
+        <option value="3" selected>3 món</option>
+        <option value="4">4 món</option>
+        <option value="5">5 món</option>
+    </select>
+
+    <button onclick="chonMonAn()">🎲 Gợi ý món ăn</button>
+    <div class="ket-qua" id="ketQua"></div>
+</div>
+
+<script>
+// ========== DANH SÁCH MÓN ĂN + HƯỚNG DẪN CHI TIẾT ==========
+const DS_THIT = [
+    { ten: "Thịt kho tàu", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt ba chỉ 500g, nước mắm ngon, đường nâu, nước dừa tươi 1 quả, trứng gà/vịt 3-4 quả, gừng, hành khô, tiêu, ớt.\n\n<strong>🔪 Sơ chế:</strong>\n- Thịt rửa sạch với nước muối loãng, thái khúc vuông khoảng 4-5cm.\n- Ướp thịt với 3 muỗng canh nước mắm, 2 muỗng canh đường, gừng thái chỉ, hành băm, tiêu trong 30 phút.\n- Trứng luộc chín, bóc vỏ.\n\n<strong>🔥 Cách nấu:</strong>\n1. Cho 3 muỗng canh đường vào nồi, bật lửa nhỏ, khuấy đều cho đường tan và chuyển màu nâu cánh gián.\n2. Đổ thịt đã ướp vào, đảo nhanh tay cho thịt săn lại và ngấm màu.\n3. Đổ nước dừa tươi vào ngập mặt thịt, đun sôi rồi hạ lửa nhỏ, hớt bọt bẩn.\n4. Khi nước cạn khoảng nửa, cho trứng vào kho cùng, nêm nếm lại cho vừa ăn ngọt mặn.\n5. Kho đến khi nước sánh lại, chuyển màu nâu óng ánh thì tắt bếp. Rắc tiêu và ớt lên trên." },
+    { ten: "Thịt luộc mắm nêm", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt ba chỉ 400g, gừng 1 củ, hành khô 2 củ, mắm nêm 3 muỗng canh, đường, chanh, nước lọc, tỏi, ớt, thơm (dứa).\n\n<strong>🔪 Sơ chế:</strong>\n- Thịt rửa sạch với nước muối loãng, để ráo.\n- Gừng thái lát, hành khô bóc vỏ đập dập.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu nước sôi, cho gừng và hành khô vào, thả thịt vào luộc lửa vừa.\n2. Luộc khoảng 15-20 phút tùy độ dày, thịt chín tới thì vớt ra ngay.\n3. Ngâm thịt vào nước lạnh khoảng 5 phút cho trắng và giòn, sau đó thái lát mỏng.\n4. Pha mắm nêm: cho 3 muỗng mắm nêm + 2 muỗng đường + 2 muỗng nước cốt chanh + 3 muỗng nước lọc + tỏi ớt băm + thơm băm nhỏ. Khuấy đều nếm vừa ăn ngọt chua mặn." },
+    { ten: "Thịt nướng sả ớt", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt nạc dăm hoặc nạc vai 500g, sả 3-4 củ, ớt trái 2-3 quả, hành khô, tỏi, nước mắm, đường, dầu ăn, mật ong (nếu có), tiêu.\n\n<strong>🔪 Sơ chế & ướp:</strong>\n- Thịt rửa sạch, thái lát mỏng ngang thớ dày khoảng 0.5cm.\n- Sả, hành, tỏi, ớt băm nhuyễn.\n- Ướp thịt với hỗn hợp băm + 2 muỗng canh nước mắm + 1 muỗng canh đường + 1 muỗng canh dầu ăn + ít tiêu. Trộn đều, để 60 phút cho thấm.\n\n<strong>🔥 Cách nướng:</strong>\n1. Nếu nướng than: trải thịt trên vỉ, nướng lửa vừa, quết chút nước ướp cho ẩm, trở đều hai mặt đến khi vàng thơm.\n2. Nếu dùng chảo: cho ít dầu ăn, áp chảo thịt chín vàng đều hai mặt lửa vừa." },
+    { ten: "Thịt rang cháy cạnh", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt ba chỉ 400g, hành khô 3 củ, nước mắm ngon, đường, tiêu.\n\n<strong>🔪 Sơ chế:</strong>\n- Thịt rửa sạch, thái miếng hình chữ nhật dày khoảng 0.7cm.\n- Luộc sơ thịt trong nước sôi 2 phút, vớt ra rửa sạch, để ráo nước hoàn toàn.\n\n<strong>🔥 Cách làm:</strong>\n1. Cho thịt vào chảo nóng không dầu, rang lửa vừa. Thịt tự ra mỡ, đảo đều cho thịt vàng các cạnh.\n2. Khi thịt vàng cạnh đẹp mắt, cho hành khô băm vào phi thơm.\n3. Nêm 2 muỗng canh nước mắm + 1 muỗng canh đường. Đảo nhanh lửa lớn cho gia vị kết dính quanh thịt, có vị ngọt mặn thơm lừng.\n4. Tắt bếp, rắc tiêu xay." },
+    { ten: "Bò lúc lắc", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt bò phi lê/nạc vai 400g, hành tây 1 củ, ớt chuông đỏ/xanh mỗi thứ nửa quả, tương ớt, xì dầu, dầu hào, đường, tiêu, tỏi băm, bột năng.\n\n<strong>🔪 Sơ chế & ướp:</strong>\n- Thịt bò thái khúc vuông 2-3cm theo thớ ngang.\n- Ướp: 1 muỗng xì dầu + 1 muỗng dầu hào + ít tiêu + 1 muỗng dầu ăn + nửa muỗng bột năng. Để 20 phút.\n\n<strong>🔥 Cách xào:</strong>\n1. Pha sốt: 1 muỗng xì dầu + 1 muỗng dầu hào + 1 muỗng tương ớt + nửa muỗng đường + ít nước.\n2. Phi thơm tỏi, xào thịt bò lửa lớn nhanh tay đến khi chín tái thì đổ ra đĩa.\n3. Dùng chảo đó, xào hành tây + ớt chuông chín tới, đổ chén sốt vào đun sôi nhẹ.\n4. Cho thịt bò trở lại chảo, đảo nhanh 30 giây rồi tắt bếp ngay." },
+    { ten: "Gà kho gừng", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt gà 500g, gừng tươi 1 củ to, nước mắm, đường, hạt tiêu, hành khô, ớt tươi, nước lọc/nước dừa.\n\n<strong>🔪 Sơ chế & ướp:</strong>\n- Gà rửa sạch với nước muối gừng, chặt khúc vừa ăn.\n- Ướp: 2 muỗng nước mắm + 1 muỗng đường + nửa củ gừng băm + hành khô băm + ít tiêu. Để 30 phút.\n\n<strong>🔥 Cách kho:</strong>\n1. Gừng còn lại thái lát mỏng hoặc chỉ, cho vào nồi cùng chút dầu phi thơm.\n2. Đổ gà vào đảo nhanh cho săn thịt.\n3. Thêm nước vừa ngập mặt thịt, đun sôi rồi hạ lửa nhỏ kho riu riu.\n4. Khi nước cạn còn khoảng 1/3, nêm nếm lại cho vừa ăn ngọt mặn.\n5. Kho đến khi nước sánh lại, thịt vàng ươm, gừng thơm lừng là được." },
+    { ten: "Sườn nướng mật ong", cachnau: "<strong>📋 Nguyên liệu:</strong> Sườn non 500g, mật ong 2 muỗng canh, nước mắm 2 muỗng, xì dầu 1 muỗng, tỏi băm, hành băm, tiêu, dầu ăn, tương ớt ít.\n\n<strong>🔪 Sơ chế & ướp:</strong>\n- Sườn chặt khúc 5-6cm, rửa sạch, luộc sơ với gừng hành cho hết bẩn, để ráo.\n- Ướp: mật ong + nước mắm + xì dầu + tỏi hành băm + tiêu + 1 muỗng dầu ăn. Để 60 phút hoặc để tủa tối.\n\n<strong>🔥 Cách nướng:</strong>\n1. Làm nóng lò ở 180°C. Lót giấy bạc vào khay, xếp sườn.\n2. Nướng khoảng 15 phút, lấy ra quết nước ướp, trở mặt.\n3. Nướng tiếp 10-15 phút cho cả hai mặt vàng đỏ đẹp, thơm ngọt ngào là xong." },
+    { ten: "Tôm rim nước dừa", cachnau: "<strong>📋 Nguyên liệu:</strong> Tôm tươi 500g, nước dừa tươi nửa bát, nước mắm, đường, hành khô, tỏi, tiêu.\n\n<strong>🔪 Sơ chế:</strong>\n- Tôm rửa sạch, bỏ râu, bỏ chân, có thể bóc vỏ hoặc để nguyên.\n\n<strong>🔥 Cách rim:</strong>\n1. Phi thơm hành tỏi băm với chút dầu nóng.\n2. Cho tôm vào đảo nhanh cho chuyển màu đỏ.\n3. Thêm nước mắm + đường theo tỷ lệ 1:1 khoảng 2 muỗng mỗi thứ, đổ nước dừa vào xâm xấp.\n4. Rim lửa vừa đến khi nước cạn sánh, quyện quanh tôm màu vàng đỏ óng ánh, vị ngọt thanh là được." },
+    { ten: "Cá kho tộ", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá lóc/basa 500g, nước mắm, đường nâu, nước dừa, gừng, hành khô, ớt, tiêu.\n\n<strong>🔪 Sơ chế:</strong>\n- Cá rửa sạch với nước muối gừng, cắt khúc dày 3cm.\n- Chiên sơ cá vàng hai mặt cho chắc thịt.\n\n<strong>🔥 Cách kho:</strong>\n1. Cho gừng thái chỉ, hành băm vào tộ đất phi thơm.\n2. Xếp cá vào, thêm nước mắm, đường, nước dừa xâm xấp mặt cá.\n3. Đun sôi rồi hạ lửa nhỏ, không đậy nắp kín. Kho riu riu lâu cho cá thấm vị.\n4. Nêm nếm lại cho vừa ăn, kho đến khi nước sánh lại, màu nâu đen đẹp mắt là được." },
+    { ten: "Thịt bò kho quế", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt bò 500g, quế khô 1 nhánh nhỏ, gừng, hành, tỏi, nước mắm, đường, nước dừa, hạt tiêu.\n\n<strong>🔪 Sơ chế & ướp:</strong>\n- Thịt bò thái khúc vuông 4cm, luộc sơ nước sôi 2 phút, rửa sạch.\n- Ướp với gừng tỏi băm, nước mắm, đường, tiêu, quế băm nhỏ 30 phút.\n\n<strong>🔥 Cách kho:</strong>\n1. Cho chút dầu vào nồi, đổ thịt vào đảo săn.\n2. Thêm nước dừa hoặc nước nóng ngập thịt, bỏ nhánh quế vào.\n3. Đun sôi rồi hạ lửa rất nhỏ, kho đến khi thịt mềm, nước cạn sánh lại, thơm lừng vị quế." }
+];
+
+const DS_CANH = [
+    { ten: "Canh chua cá lóc", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá lóc 500g, me chua 50g, đậu bắp 3-4 quả, thơm (dứa) nửa quả, cà chua 2 quả, giá đỗ 1 nắm, ngò ôm, hành lá, nước mắm, đường, muối, tỏi băm.\n\n<strong>🔪 Sơ chế:</strong>\n- Cá rửa sạch với nước muối gừng, cắt khúc dày 3cm. Có thể chiên sơ qua.\n- Me ngâm nước nóng, dầm lấy nước chua, bỏ hạt.\n- Đậu bắp thái xéo, thơm thái miếng, cà chua bổ múi, giá rửa sạch, ngò hành cắt khúc.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu khoảng 1.5 lít nước sôi, cho phần cọng ngò ôm + hành lá vào nấu cho thơm rồi vớt ra.\n2. Đổ nước me vào, thêm nước mắm, đường, muối vừa ăn tạo vị chua ngọt hài hòa.\n3. Thả cá vào nấu lửa vừa đến khi cá chín nổi lên trên.\n4. Thêm đậu bắp, thơm, cà chua nấu sôi lại nhẹ.\n5. Cuối cùng cho giá đỗ + ngò ôm + hành lá thái khúc vào, đun sôi lăn tăn rồi tắt bếp ngay." },
+    { ten: "Canh khổ qua nhồi thịt", cachnau: "<strong>📋 Nguyên liệu:</strong> Khổ qua 2 quả, thịt nạc băm 200g, nấm mèo 3-4 tai, hành khô, tiêu, nước mắm, hành lá, hạt nêm.\n\n<strong>🔪 Sơ chế & nhồi:</strong>\n- Khổ qua rửa sạch, cắt bỏ hai đầu, dùng đũa luồn bỏ ruột. Có thể ngâm nước muối loãng 15 phút giảm bớt vị đắng.\n- Nấm mèo ngâm nở, băm nhỏ trộn cùng thịt băm, hành khô băm, 1 muỗng nước mắm, ít tiêu, hạt nêm. Trộn đều để 15 phút.\n- Nhồi hỗn hợp thịt vào trong khổ qua thật chặt.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu khoảng 1.2 lít nước sôi, nhẹ nhàng thả khổ qua vào.\n2. Đun sôi rồi hạ lửa nhỏ, không đậy nắp kín để giảm đắng.\n3. Nấu khoảng 25-35 phút tùy kích thước, kiểm tra khổ qua mềm trong là được.\n4. Nêm nước mắm, hạt nêm vừa ăn, rắc hành lá thái khúc và tiêu xay trước khi tắt bếp." },
+    { ten: "Canh bầu tôm tươi", cachnau: "<strong>📋 Nguyên liệu:</strong> Bầu 1 quả nhỏ, tôm tươi 150g, hành khô, hành lá, nước mắm, muối, tiêu.\n\n<strong>🔪 Sơ chế:</strong>\n- Bầu gọt vỏ, rửa sạch, thái lát mỏng hoặc sợi vừa ăn.\n- Tôm bóc vỏ, bỏ đầu, rút chỉ lưng, ướp chút nước mắm và tiêu.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu khoảng 1 lít nước sôi.\n2. Thả bầu vào nấu đến khi bầu hơi trong mềm.\n3. Cho tôm vào nấu chín nhanh, khoảng 2-3 phút tôm chuyển màu đỏ là được.\n4. Nêm nước mắm hoặc muối vừa ăn, rắc hành lá thái khúc và tiêu xay rồi tắt bếp." },
+    { ten: "Canh cải thịt băm", cachnau: "<strong>📋 Nguyên liệu:</strong> Cải xanh 1 bó, thịt nạc băm 100g, hành khô, nước mắm, muối, tiêu, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Cải tách từng cọng, rửa sạch, thái khúc khoảng 3-4cm.\n- Thịt băm ướp chút nước mắm, tiêu, hành băm 10 phút.\n\n<strong>🔥 Cách nấu:</strong>\n1. Cho chút dầu ăn vào nồi, phi thơm hành khô băm.\n2. Đổ thịt băm vào xào chín, đổ khoảng 1 lít nước vào đun sôi.\n3. Hớt bọt nếu có, thả cải vào nấu chín tới, không nấu quá nhừ.\n4. Nêm nước mắm hoặc muối cho vừa ăn, rắc tiêu xay rồi tắt bếp." },
+    { ten: "Canh cá lóc nấu lá giang", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá lóc 400g, lá giang 1 nắm to, gừng, muối, nước mắm, hành lá, ớt trái tùy thích.\n\n<strong>🔪 Sơ chế:</strong>\n- Cá rửa sạch với nước muối gừng, cắt khúc.\n- Lá giang rửa sạch, vò nhẹ cho hơi dập ra nước chua.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu nước sôi với gừng thái lát.\n2. Thả lá giang vào nấu khoảng 5 phút cho ra nước chua thanh.\n3. Thả cá vào nấu lửa vừa đến khi cá chín nổi lên mặt nước.\n4. Nêm nước mắm, muối cho vừa vị chua ngọt thanh mát.\n5. Thêm hành lá thái khúc, có thể bỏ chút ớt cho thơm rồi tắt bếp." },
+    { ten: "Canh chua tôm", cachnau: "<strong>📋 Nguyên liệu:</strong> Tôm tươi 200g, me chua 30g, thơm nửa quả, đậu bắp 3 quả, cà chua 1 quả, giá đỗ 1 nắm, hành lá, ngò, nước mắm, đường.\n\n<strong>🔪 Sơ chế:</strong>\n- Tôm bóc vỏ, bỏ chỉ lưng, để nguyên đầu hoặc không tùy thích.\n- Me ngâm nước nóng lấy nước chua bỏ hạt. Thơm, đậu bắp, cà chua thái lát, giá rửa sạch, hành ngò cắt khúc.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu nước sôi, cho nước me vào tạo vị chua.\n2. Thêm nước mắm, đường nêm vừa ăn chua ngọt.\n3. Thả thơm, đậu bắp, cà chua nấu chín tới.\n4. Cuối cùng cho tôm vào nấu chín nhanh, thêm giá và hành ngò rồi tắt bếp ngay." },
+    { ten: "Canh cà chua trứng", cachnau: "<strong>📋 Nguyên liệu:</strong> Cà chua chín 2-3 quả, trứng gà 2-3 quả, hành khô, hành lá, nước mắm, muối, tiêu, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Cà chua rửa sạch, bỏ cuống, thái múi cau.\n- Trứng đánh tan trong bát với chút muối tiêu.\n\n<strong>🔥 Cách nấu:</strong>\n1. Cho chút dầu ăn vào nồi, phi thơm hành khô băm.\n2. Đổ cà chua vào xào chín mềm, thêm chút nước cho ra màu đỏ đẹp.\n3. Đổ khoảng 1 lít nước vào đun sôi, nêm nước mắm muối vừa ăn.\n4. Giữ nước sôi nhẹ, đổ trứng từ từ theo muỗng canh hoặc rưới nhẹ tạo thành sợi mỏng đẹp mắt.\n5. Thêm hành lá thái khúc, rắc tiêu rồi tắt bếp ngay." },
+    { ten: "Canh bí đỏ tôm khô", cachnau: "<strong>📋 Nguyên liệu:</strong> Bí đỏ 300g, tôm khô 30g, hành lá, muối, nước mắm, tiêu.\n\n<strong>🔪 Sơ chế:</strong>\n- Bí đỏ gọt vỏ, bỏ hạt, rửa sạch, thái miếng vừa ăn.\n- Tôm khô ngâm nước ấm khoảng 10 phút cho mềm, rửa sạch.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu khoảng 1 lít nước sôi, cho tôm khô vào nấu trước khoảng 5 phút cho ra nước ngọt.\n2. Thêm bí đỏ vào nấu đến khi bí chín mềm, dùng đũa kiểm tra dễ xuyên qua là được.\n3. Nêm nước mắm hoặc muối nhẹ tay, giữ vị ngọt tự nhiên của bí và tôm.\n4. Thêm hành lá thái khúc, rắc tiêu rồi tắt bếp." },
+    { ten: "Canh đậu hũ nấm", cachnau: "<strong>📋 Nguyên liệu:</strong> Đậu hũ non 2-3 miếng, các loại nấm (nấm rơm, nấm đông cô, nấm kim châm...) tổng cộng 150g, hành lá, muối, hạt nêm, dầu mè ít.\n\n<strong>🔪 Sơ chế:</strong>\n- Đậu hũ thái miếng vuông nhỏ.\n- Nấm rửa sạch, ngâm nước muối nhẹ, cắt bỏ phần gốc cứng.\n\n<strong>🔥 Cách nấu:</strong>\n1. Nấu nước sôi, cho nấm vào nấu khoảng 5 phút cho ra nước ngọt thanh.\n2. Thêm đậu hũ vào nấu sôi lại nhẹ, không khuấy mạnh dễ vỡ đậu.\n3. Nêm muối, hạt nêm vừa ăn, vị thanh mát không quá mặn.\n4. Thêm hành lá, nhỏ vài giọt dầu mè cho thơm rồi tắt bếp." },
+    { ten: "Canh củ sen sườn non", cachnau: "<strong>📋 Nguyên liệu:</strong> Sườn non 300g, củ sen 200g, hành khô, muối, hạt nêm, tiêu.\n\n<strong>🔪 Sơ chế:</strong>\n- Sườn chặt khúc, luộc sơ nước sôi 2 phút, rửa sạch hết bọt bẩn.\n- Củ sen gọt vỏ, thái lát dày khoảng 0.8-1cm, ngâm nước có chút giấm để không bị thâm.\n\n<strong>🔥 Cách nấu:</strong>\n1. Cho sườn vào nồi, đổ nước đủ ngập, đun sôi rồi hạ lửa nhỏ nấu 30 phút cho nước ngọt.\n2. Thêm củ sen vào nấu tiếp khoảng 20-30 phút đến khi củ sen mềm trong.\n3. Nêm muối, hạt nêm vừa ăn, giữ vị ngọt thanh tự nhiên.\n4. Rắc hành lá và tiêu trước khi tắt bếp." }
+];
+
+const DS_RAU = [
+    { ten: "Rau muống xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong> Rau muống 1 bó, tỏi 3-4 tép, nước mắm ngon, muối, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Nhặt bỏ lá vàng, phần thân già cứng, tước bỏ sợi xơ ở cuống.\n- Rửa sạch nhiều lần với nước, để ráo nước thật kỹ (rau không bị bắn dầu và giòn ngon hơn).\n- Tỏi bóc vỏ, đập dập, băm nhỏ.\n\n<strong>🔥 Cách xào:</strong>\n1. Đun nóng chảo, cho dầu ăn vào đun thật nóng.\n2. Thêm tỏi vào phi thơm vàng nhẹ.\n3. Đổ rau muống vào chảo ngay, đảo nhanh tay trên lửa lớn nhất.\n4. Thêm nước mắm hoặc muối vừa ăn, xào nhanh khoảng 1-2 phút.\n5. Khi rau vừa chín tới, vẫn giữ màu xanh tươi thì tắt bếp ngay, không nấu quá nhừ." },
+    { ten: "Bầu xào tôm khô", cachnau: "<strong>📋 Nguyên liệu:</strong> Bầu 1 quả nhỏ, tôm khô 30g, hành khô, nước mắm, muối, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Bầu gọt vỏ, rửa sạch, thái lát mỏng hoặc sợi vừa ăn.\n- Tôm khô ngâm nước ấm khoảng 10 phút cho mềm, rửa sạch, để ráo.\n- Hành khô băm nhỏ.\n\n<strong>🔥 Cách xào:</strong>\n1. Cho dầu ăn vào chảo nóng, phi hành thơm.\n2. Thêm tôm khô vào xào thơm trước cho ngọt nước.\n3. Đổ bầu vào xào lửa lớn nhanh tay, đảo đều.\n4. Nêm nước mắm hoặc muối vừa ăn, bầu chín tới còn hơi giòn là ngon nhất.\n5. Tắt bếp ngay khi bầu vừa chuyển trong nhẹ, không nấu nhừ." },
+    { ten: "Cải xanh xào nấm", cachnau: "<strong>📋 Nguyên liệu:</strong> Cải xanh 1 bó, nấm các loại 150g, tỏi 2 tép, xì dầu, dầu hào, dầu ăn, ít nước lọc.\n\n<strong>🔪 Sơ chế:</strong>\n- Cải tách cọng, rửa sạch, cắt khúc khoảng 4cm, tách riêng cọng và lá.\n- Nấm rửa sạch, ngâm nước muối nhẹ, cắt bỏ gốc cứng.\n- Tỏi đập dập băm nhỏ.\n\n<strong>🔥 Cách xào:</strong>\n1. Đun nóng dầu, phi tỏi thơm vàng.\n2. Cho nấm vào xào trước với chút nước lọc cho nấm mềm và ra nước ngọt.\n3. Thêm cọng cải vào xào trước, sau đó mới thêm lá cải.\n4. Nêm xì dầu, dầu hào ít thôi cho thanh ngọt, không thêm muối.\n5. Xào nhanh lửa lớn, rau chín tới giòn ngọt thì tắt bếp." },
+    { ten: "Mồng tơi xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong> Rau mồng tơi 1 bó, tỏi 3 tép, nước mắm, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Nhặt lấy lá và ngọn non, bỏ thân già.\n- Rửa sạch, vắt nhẹ bớt nước dư.\n- Tỏi đập dập, băm nhỏ.\n\n<strong>🔥 Cách xào:</strong>\n1. Đun dầu thật nóng, phi tỏi thơm vàng.\n2. Thả rau vào xào nhanh tay lửa lớn.\n3. Nêm nước mắm vừa ăn, xào đến khi rau vừa chín mềm thì tắt bếp ngay.\n4. Mồng tơi ăn ngọt mát, không nên nấu quá nhừ sẽ nhớt mất ngon." },
+    { ten: "Đậu đũa xào thịt băm", cachnau: "<strong>📋 Nguyên liệu:</strong> Đậu đũa 200g, thịt nạc băm 100g, hành khô, tỏi, nước mắm, muối, tiêu, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Đậu đũa tước bỏ hai đầu và sợi xơ hai bên, rửa sạch, thái khúc khoảng 4-5cm.\n- Thịt băm ướp chút nước mắm, tiêu, hành băm 10 phút.\n\n<strong>🔥 Cách xào:</strong>\n1. Cho dầu ăn vào chảo, phi hành tỏi thơm.\n2. Đổ thịt băm vào xào chín, đổ ra đĩa riêng.\n3. Dùng chảo đó, cho đậu đũa vào xào, thêm chút nước lọc, đậy nắp chín hơi cho đậu mềm xanh.\n4. Khi đậu chín, đổ thịt trở lại chảo, nêm nước mắm hoặc muối vừa ăn.\n5. Đảo đều, rắc tiêu rồi tắt bếp." },
+    { ten: "Bông cải xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong> Bông cải xanh 300g, tỏi 3 tép, nước mắm, muối, dầu ăn, chút nước lọc.\n\n<strong>🔪 Sơ chế:</strong>\n- Tách bông cải thành những nhánh nhỏ, rửa sạch.\n- Ngâm nước muối nhẹ 10 phút rồi rửa lại, để ráo.\n- Tỏi đập dập băm nhỏ.\n\n<strong>🔥 Cách xào:</strong>\n1. Nấu nước sôi có chút muối và dầu ăn, thả bông cải vào luộc khoảng 1 phút.\n2. Vớt ra ngay ngâm vào nước lạnh để giữ màu xanh và độ giòn.\n3. Đun nóng dầu, phi tỏi thơm vàng.\n4. Thả bông cải vào xào nhanh tay lửa lớn, nêm gia vị vừa ăn.\n5. Đảo đều khoảng 1-2 phút rồi tắt bếp ngay." },
+    { ten: "Su hào xào cà rốt", cachnau: "<strong>📋 Nguyên liệu:</strong> Su hào 1 củ nhỏ, cà rốt 1 củ, hành khô, muối, nước mắm, tiêu, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Su hào, cà rốt gọt vỏ, rửa sạch, thái sợi hoặc lát mỏng bằng nhau.\n\n<strong>🔥 Cách xào:</strong>\n1. Đun nóng dầu, phi hành khô băm thơm.\n2. Cho cà rốt vào xào trước vì lâu chín hơn, thêm chút nước cho mềm.\n3. Tiếp theo cho su hào vào xào chung lửa lớn.\n4. Nêm muối hoặc nước mắm vừa ăn, giữ vị giòn ngọt thanh.\n5. Khi cả hai chín tới thì tắt bếp, rắc tiêu." },
+    { ten: "Cải thìa xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong> Cải thìa 3-4 cọng, tỏi 3 tép, xì dầu, dầu ăn, chút nước lọc.\n\n<strong>🔪 Sơ chế:</strong>\n- Tách từng cọng, rửa sạch, để nguyên hoặc cắt khúc.\n\n<strong>🔥 Cách xào:</strong>\n1. Luộc sơ cải trong nước sôi có chút muối khoảng 1 phút, vớt ra để ráo.\n2. Đun dầu nóng, phi tỏi thơm vàng.\n3. Thả cải vào xào nhanh, nêm xì dầu cho đậm đà thanh vị.\n4. Xào chín tới, giữ độ giòn ngọt thì tắt bếp ngay." },
+    { ten: "Củ đậu xào tôm", cachnau: "<strong>📋 Nguyên liệu:</strong> Củ đậu 1 củ to, tôm tươi 150g, hành khô, nước mắm, tiêu, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Củ đậu gọt vỏ, thái lát mỏng hoặc sợi.\n- Tôm bóc vỏ, bỏ chỉ lưng, ướp chút nước mắm tiêu 10 phút.\n\n<strong>🔥 Cách xào:</strong>\n1. Đun dầu nóng, phi hành thơm, xào tôm chín chuyển màu đỏ thì đổ ra đĩa.\n2. Dùng chảo đó, xào củ đậu nhanh lửa lớn, nêm nước mắm vừa ăn.\n3. Khi củ đậu chín tới vẫn giòn ngọt thì đổ tôm trở lại, đảo đều rồi tắt bếp." },
+    { ten: "Đậu hũ chiên sả ớt", cachnau: "<strong>📋 Nguyên liệu:</strong> Đậu hũ 3 miếng, sả 2 củ, ớt 1-2 quả, nước mắm, đường, dầu ăn.\n\n<strong>🔪 Sơ chế:</strong>\n- Đậu hũ thái miếng vuông dày khoảng 1cm, để ráo nước.\n- Sả băm nhỏ, ớt băm.\n\n<strong>🔥 Cách làm:</strong>\n1. Cho dầu ăn vào chảo, chiên đậu hũ vàng đều hai mặt, vớt ra để ráo dầu.\n2. Chừa chút dầu, phi sả ớt thơm vàng.\n3. Nêm nước mắm + đường tỷ lệ 1:1 cho thấm đều.\n4. Đổ đậu hũ trở lại chảo, đảo nhẹ cho thấm gia vị thơm lừng rồi tắt bếp." }
+];
+
+// ========== CHỌN NGẪU NHIÊN ==========
+function layNgauNhien(arr, soLuong) {
+    const kq = [];
+    const mangTam = [...arr];
+    for (let i = 0; i < soLuong && mangTam.length > 0; i++) {
+        const vt = Math.floor(Math.random() * mangTam.length);
+        kq.push(mangTam.splice(vt, 1)[0]);
+    }
+    return kq;
+}
+
+// ========== CHỌN MÓN ĂN ==========
+function chonMonAn() {
+    const soMon = parseInt(document.getElementById('soMon').value);
+    const dsMon = [];
+    const coCanh = soMon >= 2;
+
+    if (coCanh) {
+        const [canh] = layNgauNhien(DS_CANH, 1);
+        dsMon.push({ ...canh, loai: 'canh' });
+    }
+
+    const soMonConLai = soMon - dsMon.length;
+    const soThit = Math.ceil(soMonConLai / 2);
+    const soRau = soMonConLai - soThit;
+
+    layNgauNhien(DS_THIT, soThit).forEach(m => dsMon.push({ ...m, loai: 'thit' }));
+    layNgauNhien(DS_RAU, soRau).forEach(m => dsMon.push({ ...m, loai: 'rau' }));
+
+    hienThi(dsMon);
+}
+
+// ========== HIỂN THỊ KẾT QUẢ ==========
+function hienThi(dsMon) {
+    const box = document.getElementById('ketQua');
+    box.innerHTML = '';
+
+    dsMon.forEach((mon, stt) => {
+        const icon = mon.loai === 'canh' ? '🍲' : mon.loai === 'thit' ? '🥩' : '🥬';
+        const lop = mon.loai === 'canh' ? 'dish-canh' : mon.loai === 'thit' ? 'dish-thit' : 'dish-rau';
+        const tenLoai = mon.loai === 'canh' ? 'Món canh' : mon.loai === 'thit' ? 'Món thịt/hải sản' : 'Rau xào';
+
+        const html = `
+        <div class="dish-item ${lop}" id="mon-${stt}" onclick="moRongCachNau(${stt})">
+            <span class="dish-icon">${icon}</span>
+            <span class="dish-name">${mon.ten}</span>
+            <div class="dish-note">${tenLoai} — Bấm xem cách nấu ▼</div>
+            <div class="cach-nau-box" id="cachnau-${stt}">${mon.cachnau}</div>
+        </div>`;
+        box.innerHTML += html;
+    });
+
+    box.classList.add('hien-thi');
+}
+
+// ========== MỞ RỘNG / THU HƯỚNG DẪN NẤU ==========
+function moRongCachNau(stt) {
+    const khung = document.getElementById(`cachnau-${stt}`);
+    khung.classList.toggle('mo-rong');
+}
+</script>
+</body>
+</html>

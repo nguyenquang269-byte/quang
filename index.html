@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hôm nay ăn gì?</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Roboto, sans-serif; }
+        body { min-height: 100vh; background: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200') center/cover no-repeat fixed; display: flex; justify-content: center; align-items: flex-start; padding: 20px; position: relative; }
+        body::before { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 0; }
+        .container { position: relative; z-index: 1; width: min(100%, 540px); background: rgba(255, 255, 248, 0.96); border-radius: 24px; padding: 28px; box-shadow: 0 18px 45px rgba(0,0,0,0.25); }
+        h1 { color: #8B4513; font-size: 28px; text-align: center; margin-bottom: 10px; }
+        .subtitle { color: #5a4734; font-size: 15px; text-align: center; margin-bottom: 20px; }
+        .status-message { text-align: center; margin-bottom: 18px; min-height: 22px; color: #444; font-size: 14px; }
+        label { display: block; margin-bottom: 8px; color: #5a3e2b; font-weight: 600; }
+        select { width: 100%; padding: 12px 14px; border: 2px solid #e0c9a6; border-radius: 12px; background: #fffaf0; color: #443322; font-size: 16px; margin-bottom: 18px; }
+        button { width: 100%; padding: 14px 16px; font-size: 17px; font-weight: 700; color: #fff; background: linear-gradient(135deg, #d35400, #e67e22); border: none; border-radius: 14px; cursor: pointer; box-shadow: 0 10px 20px rgba(211,84,0,0.28); transition: transform 0.2s ease, filter 0.2s ease; }
+        button:hover { transform: translateY(-1px); filter: brightness(1.04); }
+        .action-buttons { display: none; gap: 12px; margin-top: 14px; }
+        .action-buttons button { flex: 1; font-size: 15px; padding: 12px 14px; margin-bottom: 0; }
+        .btn-share { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .btn-reset { background: linear-gradient(135deg, #7d3c98, #9b59b6); }
+        .dish-item { background: #fff; border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; border-left: 5px solid transparent; }
+        .dish-item:hover { transform: translateX(4px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .dish-thit { border-color: #e74c3c; }
+        .dish-canh { border-color: #3498db; }
+        .dish-rau { border-color: #27ae60; }
+        .dish-icon { font-size: 20px; margin-right: 10px; }
+        .dish-name { font-size: 17px; font-weight: 700; color: #2c3e50; }
+        .dish-note { margin-top: 8px; font-size: 13px; color: #7f8c8d; }
+        .cach-nau-box { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease, margin 0.35s ease; background: #fff7ea; border-radius: 12px; margin-top: 0; padding: 0 16px; line-height: 1.7; color: #443322; border-left: 4px solid #f39c12; }
+        .cach-nau-box.mo-rong { max-height: 2200px; padding: 16px; margin-top: 10px; }
+        .cach-nau-box strong { color: #c06014; }
+        .ket-qua { display: none; margin-top: 10px; }
+        .ket-qua.hien-thi { display: block; }
+        .hidden-screenshot { position: absolute; left: -9999px; top: -9999px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ Hôm nay ăn gì?</h1>
+        <p class="subtitle">Chọn kiểu gợi ý và số món, sau đó nhấn nút để lấy menu nhanh.</p>
+
+        <div class="status-message" id="statusMessage">Đang chuẩn bị...</div>
+
+        <label for="kieuMon">Chọn kiểu gợi ý:</label>
+        <select id="kieuMon">
+            <option value="tu-do" selected>Tự do (món tổng hợp)</option>
+            <option value="co-canh">Có canh + mặn</option>
+            <option value="chi-thit">Chỉ thịt/hải sản</option>
+            <option value="chi-rau">Chỉ rau/món phụ</option>
+        </select>
+
+        <label for="soMon">Số món muốn lấy:</label>
+        <select id="soMon">
+            <option value="1">1 món</option>
+            <option value="2">2 món</option>
+            <option value="3" selected>3 món</option>
+            <option value="4">4 món</option>
+            <option value="5">5 món</option>
+        </select>
+
+        <button onclick="chonMonAn()">🎲 Gợi ý món ăn ngẫu nhiên</button>
+
+        <div class="ket-qua" id="ketQua"></div>
+
+        <div class="action-buttons" id="actionButtons">
+            <button class="btn-share" onclick="shareAsImage()">📸 Chia sẻ hình ảnh</button>
+            <button class="btn-reset" onclick="resetKetQua()">🔄 Làm mới</button>
+        </div>
+    </div>
+
+    <div class="hidden-screenshot" id="screenshotContainer"></div>
+
+    <script>
+        const FALLBACK_DATA = {
+            canh: [
+                { ten: "Canh chua cá", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá, me, dứa, cà chua, giá, rau om.<br><br><strong>👨‍🍳 Cách nấu:</strong> Nấu nước dùng me, cho cá vào, thêm dứa và cà chua. Nêm gia vị vừa ăn, cho giá và rau om vào trước khi tắt bếp." },
+                { ten: "Canh bí nấu tôm", cachnau: "<strong>📋 Nguyên liệu:</strong> Bí xanh, tôm bóc vỏ, hành lá, gia vị.<br><br><strong>👨‍🍳 Cách nấu:</strong> Xào tôm sơ với hành. Thêm nước sôi, cho bí vào nấu mềm. Nêm muối, tiêu, rắc hành lá." }
+            ],
+            thit: [
+                { ten: "Thịt kho trứng", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt ba chỉ, nước dừa, trứng, nước mắm, đường.<br><br><strong>👨‍🍳 Cách nấu:</strong> Ướp thịt với gia vị. Kho với nước dừa đến khi thịt mềm và nước sánh." },
+                { ten: "Gà xào sả ớt", cachnau: "<strong>📋 Nguyên liệu:</strong> Thịt gà, sả, ớt, tỏi, dầu ăn.<br><br><strong>👨‍🍳 Cách nấu:</strong> Phi thơm sả tỏi, cho gà vào xào săn, thêm ớt và gia vị, đảo đều đến khi chín." },
+                { ten: "Cá kho tộ", cachnau: "<strong>📋 Nguyên liệu:</strong> Cá, nước mắm, đường, tiêu, hành lá.<br><br><strong>👨‍🍳 Cách nấu:</strong> Ướp cá với gia vị. Kho nhỏ lửa đến khi nước sánh và cá thấm." }
+            ],
+            rau: [
+                { ten: "Rau muống xào tỏi", cachnau: "<strong>📋 Nguyên liệu:</strong> Rau muống, tỏi, dầu ăn, muối.<br><br><strong>👨‍🍳 Cách nấu:</strong> Phi tỏi thơm, cho rau muống vào xào nhanh trên lửa lớn. Nêm muối vừa ăn." },
+                { ten: "Bắp cải xào chay", cachnau: "<strong>📋 Nguyên liệu:</strong> Bắp cải, cà rốt, dầu ăn, xì dầu.<br><br><strong>👨‍🍳 Cách nấu:</strong> Xào cà rốt trước, thêm bắp cải và xì dầu. Đảo nhanh đến khi chín giòn." }
+            ]
+        };
+
+        let DANH_SACH_MON = null;
+
+        function hienThiThongBao(noiDung) {
+            const el = document.getElementById('statusMessage');
+            if (el) el.textContent = noiDung;
+        }
+
+        function normalizeData(data) {
+            if (!data || typeof data !== 'object') return FALLBACK_DATA;
+            if (Array.isArray(data)) return { canh: [], thit: data, rau: [] };
+            return {
+                canh: Array.isArray(data.canh) ? data.canh : [],
+                thit: Array.isArray(data.thit) ? data.thit : [],
+                rau: Array.isArray(data.rau) ? data.rau : []
+            };
+        }
+
+        function taiDuLieu() {
+            hienThiThongBao('⏳ Đang tải dữ liệu món ăn...');
+            fetch('./monan.json')
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    DANH_SACH_MON = normalizeData(data);
+                    hienThiThongBao('✅ Đã tải danh sách món ăn từ monan.json.');
+                })
+                .catch(err => {
+                    console.warn('Không thể tải monan.json:', err);
+                    DANH_SACH_MON = FALLBACK_DATA;
+                    hienThiThongBao('⚠️ Không tải được monan.json. Đang dùng dữ liệu nội bộ.');
+                });
+        }
+
+        function layNgauNhien(arr, soLuong) {
+            if (!Array.isArray(arr) || arr.length === 0 || soLuong <= 0) return [];
+            const kq = [];
+            const mangTam = [...arr];
+            for (let i = 0; i < soLuong && mangTam.length > 0; i++) {
+                const vt = Math.floor(Math.random() * mangTam.length);
+                kq.push(mangTam.splice(vt, 1)[0]);
+            }
+            return kq;
+        }
+
+        function coDuLieu(loai) {
+            return Array.isArray(DANH_SACH_MON?.[loai]) && DANH_SACH_MON[loai].length > 0;
+        }
+
+        function layDuLieuTuDo(soLuong) {
+            if (soLuong <= 0) return [];
+
+            const available = ['canh', 'thit', 'rau'].filter(coDuLieu);
+            if (available.length === 0) return [];
+
+            if (soLuong === 1) {
+                const loai = available[Math.floor(Math.random() * available.length)];
+                return layNgauNhien(DANH_SACH_MON[loai], 1).map(m => ({ ...m, loai }));
+            }
+
+            const ds = [];
+            if (coDuLieu('canh')) {
+                layNgauNhien(DANH_SACH_MON.canh, 1).forEach(m => ds.push({ ...m, loai: 'canh' }));
+            }
+
+            const soMonConLai = soLuong - ds.length;
+            const soThit = Math.min(soMonConLai, Math.ceil(soMonConLai / 2));
+            const soRau = soMonConLai - soThit;
+
+            if (soThit > 0 && coDuLieu('thit')) {
+                layNgauNhien(DANH_SACH_MON.thit, soThit).forEach(m => ds.push({ ...m, loai: 'thit' }));
+            }
+
+            if (ds.length < soLuong && coDuLieu('rau')) {
+                const remaining = soLuong - ds.length;
+                layNgauNhien(DANH_SACH_MON.rau, remaining).forEach(m => ds.push({ ...m, loai: 'rau' }));
+            }
+
+            return ds;
+        }
+
+        function layDuLieuCoCanh(soLuong) {
+            if (soLuong <= 0) return [];
+
+            const ds = [];
+            if (coDuLieu('canh')) {
+                layNgauNhien(DANH_SACH_MON.canh, 1).forEach(m => ds.push({ ...m, loai: 'canh' }));
+            }
+
+            let soMonConLai = soLuong - ds.length;
+            if (soMonConLai <= 0) return ds;
+
+            if (coDuLieu('thit')) {
+                const themThit = Math.min(soMonConLai, DANH_SACH_MON.thit.length);
+                layNgauNhien(DANH_SACH_MON.thit, themThit).forEach(m => ds.push({ ...m, loai: 'thit' }));
+                soMonConLai = soLuong - ds.length;
+            }
+
+            if (soMonConLai > 0 && coDuLieu('rau')) {
+                layNgauNhien(DANH_SACH_MON.rau, soMonConLai).forEach(m => ds.push({ ...m, loai: 'rau' }));
+            }
+
+            return ds;
+        }
+
+        function napThem(needed, types) {
+            const extra = [];
+            for (const loai of types) {
+                if (!coDuLieu(loai)) continue;
+                layNgauNhien(DANH_SACH_MON[loai], needed).forEach(m => extra.push({ ...m, loai }));
+                if (extra.length >= needed) break;
+            }
+            return extra.slice(0, needed);
+        }
+
+        function chonMonAn() {
+            if (!DANH_SACH_MON) {
+                alert('⏳ Đang tải danh sách món, vui lòng chờ...');
+                return;
+            }
+
+            const soMon = parseInt(document.getElementById('soMon').value, 10);
+            const kieuMon = document.getElementById('kieuMon').value;
+            let dsMon = [];
+
+            if (kieuMon === 'chi-thit') {
+                dsMon = layNgauNhien(DANH_SACH_MON.thit, soMon).map(m => ({ ...m, loai: 'thit' }));
+            } else if (kieuMon === 'chi-rau') {
+                dsMon = layNgauNhien(DANH_SACH_MON.rau, soMon).map(m => ({ ...m, loai: 'rau' }));
+            } else if (kieuMon === 'co-canh') {
+                dsMon = layDuLieuCoCanh(soMon);
+            } else {
+                dsMon = layDuLieuTuDo(soMon);
+            }
+
+            if (dsMon.length < soMon) {
+                const needed = soMon - dsMon.length;
+                let types = ['thit', 'rau', 'canh'];
+
+                if (kieuMon === 'chi-thit') {
+                    types = ['thit'];
+                } else if (kieuMon === 'chi-rau') {
+                    types = ['rau'];
+                } else if (kieuMon === 'co-canh') {
+                    types = ['thit', 'rau', 'canh'];
+                }
+
+                dsMon = dsMon.concat(napThem(needed, types));
+            }
+
+            if (dsMon.length === 0) {
+                alert('❌ Chưa có đủ dữ liệu để chọn món. Vui lòng kiểm tra lại monan.json hoặc chọn kiểu gợi ý khác.');
+                return;
+            }
+
+            dsMon = dsMon.slice(0, soMon);
+            hienThi(dsMon);
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+
+        function hienThi(dsMon) {
+            const box = document.getElementById('ketQua');
+            box.innerHTML = '';
+            let html = '<div class="buaf-chi-thi">🍽️ Gợi ý ngẫu nhiên</div>';
+
+            dsMon.forEach((mon, stt) => {
+                const icon = mon.loai === 'canh' ? '🍲' : mon.loai === 'thit' ? '🥩' : '🥬';
+                const lop = mon.loai === 'canh' ? 'dish-canh' : mon.loai === 'thit' ? 'dish-thit' : 'dish-rau';
+                const tenLoai = mon.loai === 'canh' ? 'Món canh' : mon.loai === 'thit' ? 'Món thịt/hải sản' : 'Rau/món phụ';
+
+                html += `
+                    <div class="dish-item ${lop}" id="mon-${stt}" onclick="moRongCachNau(${stt})">
+                        <div class="dish-name"><span class="dish-icon">${icon}</span>${mon.ten}</div>
+                        <div class="dish-note">${tenLoai} — Bấm xem cách nấu ▼</div>
+                        <div class="cach-nau-box" id="cachnau-${stt}">${mon.cachnau}</div>
+                    </div>`;
+            });
+
+            box.innerHTML = html;
+            box.classList.add('hien-thi');
+        }
+
+        function moRongCachNau(stt) {
+            const khung = document.getElementById(`cachnau-${stt}`);
+            if (khung) khung.classList.toggle('mo-rong');
+        }
+
+        function resetKetQua() {
+            document.getElementById('ketQua').innerHTML = '';
+            document.getElementById('ketQua').classList.remove('hien-thi');
+            document.getElementById('actionButtons').style.display = 'none';
+        }
+
+        function shareAsImage() {
+            const ketQua = document.getElementById('ketQua');
+            if (!ketQua.innerHTML.trim()) {
+                alert('Chưa có kết quả để chia sẻ.');
+                return;
+            }
+
+            const container = document.getElementById('screenshotContainer');
+            const clone = ketQua.cloneNode(true);
+            container.innerHTML = '';
+            container.appendChild(clone);
+
+            html2canvas(clone, { backgroundColor: '#fffef8', scale: 2 })
+                .then(canvas => {
+                    canvas.toBlob(blob => {
+                        const file = new File([blob], 'menu_ngau_nhien.png', { type: 'image/png' });
+                        if (navigator.share) {
+                            navigator.share({ title: 'Menu hôm nay', text: 'Đây là gợi ý món ăn của tôi!', files: [file] })
+                                .catch(err => err.name !== 'AbortError' && console.log(err));
+                        } else {
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'menu_ngau_nhien.png';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            URL.revokeObjectURL(url);
+                            alert('✅ Hình ảnh đã tải về!');
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error('Lỗi tạo ảnh:', err);
+                    alert('❌ Không thể tạo hình ảnh, vui lòng thử lại!');
+                });
+        }
+
+        window.addEventListener('DOMContentLoaded', taiDuLieu);
+    </script>
+</body>
+</html>
